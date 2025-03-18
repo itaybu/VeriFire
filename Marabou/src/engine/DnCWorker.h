@@ -35,7 +35,8 @@ public:
                float timeoutFactor,
                SnCDivideStrategy divideStrategy,
                unsigned verbosity,
-               bool parallelDeepSoI );
+               bool parallelDeepSoI,
+               std::atomic<double> &percentageCompleted );
 
     /*
       Pop one subQuery, solve it and handle the result
@@ -87,6 +88,10 @@ private:
     float _timeoutFactor;
     unsigned _verbosity;
     bool _parallelDeepSoI;
+
+    /*
+     */
+    std::atomic<double> *_percentageCompleted;
 };
 
 #endif // __DnCWorker_h__

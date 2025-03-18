@@ -51,7 +51,8 @@ void DnCManager::dncSolve( WorkerQueue *workload,
                            bool restoreTreeStates,
                            unsigned verbosity,
                            unsigned seed,
-                           bool parallelDeepSoI )
+                           bool parallelDeepSoI,
+                           std::atomic<double> &percentageCompleted )
 {
     unsigned cpuId = 0;
     (void)threadId;
@@ -73,7 +74,8 @@ void DnCManager::dncSolve( WorkerQueue *workload,
                       timeoutFactor,
                       divideStrategy,
                       verbosity,
-                      parallelDeepSoI );
+                      parallelDeepSoI,
+                      std::ref( percentageCompleted ) );
     while ( !shouldQuitSolving.load() )
     {
         worker.popOneSubQueryAndSolve( restoreTreeStates );
@@ -220,6 +222,8 @@ void DnCManager::solve()
     auto baseInputQuery =
         std::unique_ptr<InputQuery>( new InputQuery( *( _baseEngine->getInputQuery() ) ) );
 
+    std::atomic<double> percentageCompleted( 0 );
+
     // Spawn threads and start solving
     std::list<std::thread> threads;
     for ( unsigned threadId = 0; threadId < numWorkers; ++threadId )
@@ -242,7 +246,8 @@ void DnCManager::solve()
                                         restoreTreeStates,
                                         _verbosity,
                                         _runParallelDeepSoI ? seed + threadId : seed,
-                                        _runParallelDeepSoI ) );
+                                        _runParallelDeepSoI,
+                                        std::ref( percentageCompleted ) ) );
     }
 
     // Wait until either all subQueries are solved or a satisfying assignment is

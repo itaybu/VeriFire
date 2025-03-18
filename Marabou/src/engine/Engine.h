@@ -142,7 +142,7 @@ public:
 
     const Statistics *getStatistics() const;
 
-    InputQuery *getInputQuery();
+    InputQuery *getInputQuery() override;
 
     InputQuery buildQueryFromCurrentState() const;
 

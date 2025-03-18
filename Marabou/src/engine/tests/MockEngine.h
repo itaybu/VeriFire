@@ -286,6 +286,11 @@ public:
     {
         return true;
     }
+
+    InputQuery *getInputQuery()
+    {
+        return nullptr;
+    }
 };
 
 #endif // __MockEngine_h__

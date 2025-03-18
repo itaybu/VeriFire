@@ -94,7 +94,8 @@ private:
                           bool restoreTreeStates,
                           unsigned verbosity,
                           unsigned seed,
-                          bool parallelDeepSoI );
+                          bool parallelDeepSoI,
+                          std::atomic<double> &percentageCompleted );
 
     /*
       Create the base engine from the network and property files,

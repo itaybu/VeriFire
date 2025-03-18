@@ -30,6 +30,7 @@
 
 class EngineState;
 class Equation;
+class InputQuery;
 class PiecewiseLinearCaseSplit;
 class SmtState;
 class String;
@@ -184,6 +185,8 @@ public:
       Propagate bound tightenings stored in the BoundManager
     */
     virtual void propagateBoundManagerTightenings() = 0;
+
+    virtual InputQuery *getInputQuery() = 0;
 };
 
 #endif // __IEngine_h__

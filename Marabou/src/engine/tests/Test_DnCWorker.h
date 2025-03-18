@@ -122,6 +122,7 @@ public:
         SnCDivideStrategy divideStrategy = SnCDivideStrategy::LargestInterval;
         unsigned verbosity = 0;
         bool portfolio = false;
+        std::atomic<double> percentage( 0 );
         DnCWorker dncWorker( _workload,
                              _engine,
                              numUnsolvedSubQueries,
@@ -131,7 +132,8 @@ public:
                              timeoutFactor,
                              divideStrategy,
                              verbosity,
-                             portfolio );
+                             portfolio,
+                             percentage );
 
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::TIMEOUT );
@@ -153,6 +155,7 @@ public:
         _engine->setExitCode( IEngine::UNSAT );
         numUnsolvedSubQueries = 2;
         shouldQuitSolving = false;
+
         dncWorker = DnCWorker( _workload,
                                _engine,
                                numUnsolvedSubQueries,
@@ -162,7 +165,8 @@ public:
                                timeoutFactor,
                                divideStrategy,
                                verbosity,
-                               portfolio );
+                               portfolio,
+                               percentage );
 
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::UNSAT );
@@ -195,7 +199,8 @@ public:
                                timeoutFactor,
                                divideStrategy,
                                verbosity,
-                               portfolio );
+                               portfolio,
+                               percentage );
 
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::UNSAT );
@@ -226,7 +231,8 @@ public:
                                timeoutFactor,
                                divideStrategy,
                                verbosity,
-                               portfolio );
+                               portfolio,
+                               percentage );
 
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::SAT );
@@ -256,7 +262,8 @@ public:
                                timeoutFactor,
                                divideStrategy,
                                verbosity,
-                               portfolio );
+                               portfolio,
+                               percentage );
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::QUIT_REQUESTED );
         TS_ASSERT( numUnsolvedSubQueries.load() == 1 );
@@ -285,7 +292,8 @@ public:
                                timeoutFactor,
                                divideStrategy,
                                verbosity,
-                               portfolio );
+                               portfolio,
+                               percentage );
 
         dncWorker.popOneSubQueryAndSolve();
         TS_ASSERT( _engine->getExitCode() == IEngine::ERROR );

@@ -41,7 +41,8 @@ DnCWorker::DnCWorker( WorkerQueue *workload,
                       float timeoutFactor,
                       SnCDivideStrategy divideStrategy,
                       unsigned verbosity,
-                      bool parallelDeepSoI )
+                      bool parallelDeepSoI,
+                      std::atomic<double> &percentageCompleted )
     : _workload( workload )
     , _engine( engine )
     , _numUnsolvedSubQueries( &numUnsolvedSubQueries )
@@ -51,6 +52,7 @@ DnCWorker::DnCWorker( WorkerQueue *workload,
     , _timeoutFactor( timeoutFactor )
     , _verbosity( verbosity )
     , _parallelDeepSoI( parallelDeepSoI )
+    , _percentageCompleted( &percentageCompleted )
 {
     setQueryDivider( divideStrategy );
 
@@ -126,6 +128,42 @@ void DnCWorker::popOneSubQueryAndSolve( bool restoreTreeStates )
             if ( _numUnsolvedSubQueries->load() == 0 || _parallelDeepSoI )
                 *_shouldQuitSolving = true;
             delete subQuery;
+
+            double subQueryPercentage = 1;
+            auto bounds = split->getBoundTightenings();
+
+            if ( _engine->getInputQuery() )
+            {
+                for ( unsigned var : _engine->getInputVariables() )
+                {
+                    double origLb = _engine->getInputQuery()->getLowerBound( var );
+                    double origUb = _engine->getInputQuery()->getUpperBound( var );
+
+                    double lb = 0;
+                    double ub = 0;
+
+                    for ( const Tightening &tightening : bounds )
+                    {
+                        if ( tightening._variable == var )
+                        {
+                            if ( tightening._type == Tightening::LB )
+                                lb = tightening._value;
+                            else
+                                ub = tightening._value;
+                        }
+                    }
+
+                    subQueryPercentage *= ( ub - lb ) / ( origUb - origLb );
+                }
+
+                double prevPercentage = _percentageCompleted->load();
+                while ( !_percentageCompleted->compare_exchange_weak(
+                    prevPercentage, prevPercentage + subQueryPercentage ) )
+                {
+                }
+
+                printf( "Search Tree Percentage Completed: %f\n", _percentageCompleted->load() );
+            }
         }
         else if ( result == IEngine::TIMEOUT )
         {
