@@ -6,15 +6,15 @@ import tensorflow as tf
 import tf2onnx
 import onnx
 import onnxruntime as ort
-# from Data_for_magneton.DP import load_net_n_predict
-# from Data_for_magneton.DP import utils
-from DP_small import load_net_n_predict
-from DP_small import utils
+from Data_for_magneton.DP import load_net_n_predict
+from Data_for_magneton.DP import utils
+# from DP_small import load_net_n_predict
+# from DP_small import utils
 
-# NETWORKS_DIR = "./networks"
-NETWORKS_DIR = "./networks_small"
-# PROPERTIES_DIR = "./properties"
-PROPERTIES_DIR = "./properties_small"
+NETWORKS_DIR = "./networks"
+PROPERTIES_DIR = "./properties"
+# NETWORKS_DIR = "./networks_small"
+# PROPERTIES_DIR = "./properties_small"
 
 TH_VALUE = 1
 INP_LOWER_BOUND = 1
@@ -23,10 +23,10 @@ DELTA = 0.001
 
 ptchSz = 25
 num_channels = 2
-# main_path_net = r"Data_for_magneton/DP"
-main_path_net = r"DP_small/2L_no_bn"
-# whichNet = 'binary_crossentropy'
-whichNet = 'binarySmall'
+main_path_net = r"Data_for_magneton/DP"
+whichNet = 'binary_crossentropy'
+# main_path_net = r"DP_small/2L_no_bn"
+# whichNet = 'binarySmall'
 gamma = 0
 title = 'test'
 flag_save_point_score = False
@@ -44,8 +44,7 @@ if __name__ == '__main__':
     x_data_ptchs_targets , _, _  =  utils.normImg(x_data_ptchs_test_targets , kernelSize=12,flag_patches=1)
     x_data_ptchs_far, _, _ = utils.normImg(x_data_ptchs_test_far , kernelSize=12, flag_patches=1)
 
-    # orig_net = load_net_n_predict.load_net(x_data_ptchs_targets, x_data_ptchs_far, main_path_net,
-    orig_net = load_net_n_predict.load_net_n_predict(x_data_ptchs_targets, x_data_ptchs_far, main_path_net,
+    orig_net = load_net_n_predict.load_net(x_data_ptchs_targets, x_data_ptchs_far, main_path_net,
                                            ptchSz=ptchSz,
                                            whichNet=whichNet,
                                            title=title,
