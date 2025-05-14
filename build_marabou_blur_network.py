@@ -13,8 +13,8 @@ from Data_for_magneton.DP import utils
 from blur import BlurEst5x5 , BlurEst5x5_gauss
 
 NETWORKS_DIR = "./networks"
-# NETWORKS_DIR = "./networks_small"
 PROPERTIES_DIR = "./properties"
+# NETWORKS_DIR = "./networks_small"
 # PROPERTIES_DIR = "./properties_small"
 
 TH_VALUE = 1
@@ -26,8 +26,8 @@ BLUE_LOCATION = (10, 10)
 ptchSz = 25
 num_channels = 2
 main_path_net = r"Data_for_magneton/DP"
-# main_path_net = r"DP_small/2L_no_bn"
 whichNet = 'binary_crossentropy'
+# main_path_net = r"DP_small/2L_no_bn"
 # whichNet = 'binarySmall'
 gamma = 0
 title = 'test'
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         img = x_data_ptchs_far[i]
         planting_img = x_data_ptchs_targets[i] - img
 
-        # planting_img[planting_img < 0.001] = 0
+        planting_img[planting_img < 0.001] = 0
 
         # Build Marabou Network
         new_input = tf.keras.Input(shape=(BLURED_PATCH_SIZE * BLURED_PATCH_SIZE,))
@@ -81,8 +81,6 @@ if __name__ == '__main__':
         # Set Weights:
         orig_weights = orig_net.get_weights()
         new_dense_weights = np.zeros((BLURED_PATCH_SIZE * BLURED_PATCH_SIZE, ptchSz * ptchSz * num_channels))
-        # new_dense_weights[BLUE_LOCATION[0]:BLUE_LOCATION[0] + BLURED_PATCH_SIZE, BLUE_LOCATION[1]:BLUE_LOCATION[1] + BLURED_PATCH_SIZE, 0] = np.eye(BLURED_PATCH_SIZE)
-        # new_dense_weights[BLUE_LOCATION[0]:BLUE_LOCATION[0] + BLURED_PATCH_SIZE, BLUE_LOCATION[1]:BLUE_LOCATION[1] + BLURED_PATCH_SIZE, 1] = np.eye(BLURED_PATCH_SIZE)
         for j in range(BLURED_PATCH_SIZE * BLURED_PATCH_SIZE):
             new_dense_weights[j, 2 * ((10 + j // 5) * 25 + 10 + j % 5)] = 1
             new_dense_weights[j, 2 * ((10 + j // 5) * 25 + 10 + j % 5) + 1] = 1
@@ -90,17 +88,9 @@ if __name__ == '__main__':
         new_weights = [new_dense_weights, img.flatten()] + orig_weights
         marabou_network.set_weights(new_weights)
 
-        # marabou_network.save(f"networks_tf/dp-net_" + str(i) + ".h5")
-
         spec = [tf.TensorSpec((None, 25), tf.float32, name="input")]
         onnx_network, _ = tf2onnx.convert.from_keras(marabou_network, input_signature=spec)
         onnx.save(onnx_network, os.path.join(NETWORKS_DIR, f"dp-net_{i}.onnx"))
-
-        # run onnx network on threshold value:
-        # session = ort.InferenceSession(os.path.join(NETWORKS_DIR, f"dp-net_{i}.onnx"))
-        # input_name = session.get_inputs()[0].name
-        # input_data = np.array([[1]], dtype=np.float32)
-        # output_for_th_value = session.run(None, {input_name: input_data})[0][0, 0]
 
         # Create VNNLIB property file
         with open(os.path.join(PROPERTIES_DIR, f"dp-net_{i}.vnnlib"), "w") as f:
