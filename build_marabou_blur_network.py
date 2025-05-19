@@ -36,6 +36,11 @@ flag_save_point_score = False
 save_path = "./Results"
 
 if __name__ == '__main__':
+    if not os.path.exists(NETWORKS_DIR):
+        os.makedirs(NETWORKS_DIR)
+    if not os.path.exists(PROPERTIES_DIR):
+        os.makedirs(PROPERTIES_DIR)
+
     # Load Data
     x_data_ptchs_test_targets_file = scio.loadmat("Data_for_magneton/DP/patches_targets.mat")
     x_data_ptchs_test_targets = x_data_ptchs_test_targets_file['patches_targets']
