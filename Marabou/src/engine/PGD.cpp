@@ -189,7 +189,7 @@ std::pair<torch::Tensor, torch::Tensor> PGDAttack::findAdvExample()
         {
             prevExample = currentExample;
             currentExample = inputExample + delta;
-            if ( ( prevExample.defined() && currentExample.equal( prevExample ) ) ||
+            if ( ( j > 0 && prevExample.defined() && currentExample.equal( prevExample ) ) ||
                  !isWithinBounds( currentExample, _inputBounds ) )
                 break;
 
