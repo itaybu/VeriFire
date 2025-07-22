@@ -236,6 +236,7 @@ bool Engine::solve( double timeoutInSeconds )
 
     bool splitJustPerformed = true;
     struct timespec mainLoopStart = TimeUtils::sampleMicro();
+    unsigned numIters = 0;
     while ( true )
     {
         struct timespec mainLoopEnd = TimeUtils::sampleMicro();
@@ -243,6 +244,9 @@ bool Engine::solve( double timeoutInSeconds )
                                       TimeUtils::timePassed( mainLoopStart, mainLoopEnd ) );
         mainLoopStart = mainLoopEnd;
 
+        numIters +=1;
+        if (numIters % 5000 == 0)
+            std::cout << "Number of main loop iterations: " << numIters << std::endl;
         if ( shouldExitDueToTimeout( timeoutInSeconds ) )
         {
             if ( _verbosity > 0 )
