@@ -459,8 +459,18 @@ solve( InputQuery &inputQuery, MarabouOptions &options, std::string redirect = "
         Engine engine;
 
         if ( !engine.processInputQuery( inputQuery ) )
+        {
+            if ( engine.getExitCode() == Engine::SAT )
+            {
+                engine.extractSolution( inputQuery );
+                for ( unsigned int i = 0; i < inputQuery.getNumberOfVariables(); ++i )
+                    ret[i] = inputQuery.getSolutionValue( i );
+            }
+
             return std::make_tuple(
                 exitCodeToString( engine.getExitCode() ), ret, *( engine.getStatistics() ) );
+        }
+
         if ( dnc )
         {
             auto dncManager = std::unique_ptr<DnCManager>( new DnCManager( &inputQuery ) );
